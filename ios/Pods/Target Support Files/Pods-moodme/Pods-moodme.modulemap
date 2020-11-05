@@ -1,6 +1,0 @@
-module Pods_moodme {
-  umbrella header "Pods-moodme-umbrella.h"
-
-  export *
-  module * { export * }
-}
