@@ -1,0 +1,12 @@
+{
+  "name": "moodme",
+  "displayName": "moodme",
+  "expo": {
+    "name": "moodme",
+    "slug": "moodme",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
