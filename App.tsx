@@ -1,10 +1,50 @@
+/* eslint-disable react/style-prop-object */
+/* eslint-disable react-native/no-color-literals */
 import React, { useState, useEffect } from 'react';
-import { Text, View, TouchableOpacity } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ViewProps,
+  TextProps,
+  TouchableOpacityProps,
+} from 'react-native';
+
 import { Camera } from 'expo-camera';
 import * as FaceDetector from 'expo-face-detector';
+import { StatusBar } from 'expo-status-bar';
 
-export default function App() {
-  const [hasPermission, setHasPermission] = useState(null);
+interface StyleProps {
+  container: ViewProps;
+  flipContainer: ViewProps;
+  flipButton: TouchableOpacityProps;
+  flipButtonLabel: TextProps;
+}
+
+const styles = StyleSheet.create<StyleProps>({
+  container: {
+    flex: 1,
+  },
+  flipContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: 'transparent',
+  },
+  flipButton: {
+    flex: 0.1,
+    alignSelf: 'flex-end',
+    alignItems: 'center',
+  },
+  flipButtonLabel: {
+    fontSize: 18,
+    marginBottom: 10,
+    color: 'white',
+  },
+});
+
+export default () => {
+  const [hasPermission, setHasPermission] = useState<boolean>(false);
   const [type, setType] = useState(Camera.Constants.Type.front);
 
   useEffect(() => {
@@ -20,32 +60,41 @@ export default function App() {
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
+
+  const handleFacesDetected = (value: any) => {
+    console.log('DETECTED: ', value);
+  };
+
   return (
-    <View style={{ flex: 1 }}>
-      <Camera style={{ flex: 1 }} type={type}>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'transparent',
-            flexDirection: 'row',
-          }}>
+    <View style={styles.container}>
+      <Camera
+        faceDetectorSettings={{
+          mode: FaceDetector.Constants.Mode.accurate,
+          detectLandmarks: FaceDetector.Constants.Landmarks.none,
+          runClassifications: FaceDetector.Constants.Classifications.none,
+          minDetectionInterval: 5000,
+          tracking: true,
+        }}
+        style={styles.container}
+        type={type}
+        onFacesDetected={handleFacesDetected}
+      >
+        <View style={styles.flipContainer}>
           <TouchableOpacity
-            style={{
-              flex: 0.1,
-              alignSelf: 'flex-end',
-              alignItems: 'center',
-            }}
+            style={styles.flipButton}
             onPress={() => {
               setType(
                 type === Camera.Constants.Type.back
                   ? Camera.Constants.Type.front
-                  : Camera.Constants.Type.back
+                  : Camera.Constants.Type.back,
               );
-            }}>
-            <Text style={{ fontSize: 18, marginBottom: 10, color: 'white' }}> Flip </Text>
+            }}
+          >
+            <Text style={styles.flipButtonLabel}>Flip</Text>
           </TouchableOpacity>
         </View>
       </Camera>
+      <StatusBar style="auto" />
     </View>
   );
-}
+};
