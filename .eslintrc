@@ -1,0 +1,91 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json",
+    "tsconfigRootDir": "./"
+  },
+  "plugins": ["@typescript-eslint", "react-native", "prettier", "import"],
+  "extends": [
+    "airbnb-typescript",
+    "airbnb/hooks",
+    "prettier",
+    "prettier/@typescript-eslint"
+  ],
+  "settings": {
+    "import/resolver": {
+      "typescript": {},
+      "node": {
+        "extensions": [".ts", ".tsx"]
+      }
+    }
+  },
+  "rules": {
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error",
+
+    "no-use-before-define": "off",
+    "@typescript-eslint/no-use-before-define": [
+      "error",
+      { "variables": false }
+    ],
+
+    "react/jsx-filename-extension": ["error", { "extensions": [".tsx"] }],
+    "react/jsx-wrap-multilines": [
+      "error",
+      { "declaration": false, "assignment": false }
+    ],
+    "react/jsx-sort-props": [
+      "error",
+      { "callbacksLast": true, "shorthandFirst": true, "ignoreCase": true }
+    ],
+
+    "react/jsx-props-no-spreading": "off",
+    "react/require-default-props": "off",
+    "react/no-unused-prop-types": "off",
+    "react/prop-types": "off",
+
+    "react-native/no-unused-styles": "error",
+    "react-native/no-color-literals": "error",
+    "react-native/no-inline-styles": "warn",
+
+    "import/order": [
+      "error",
+      {
+        "groups": ["builtin", "external", "internal", ["parent", "sibling"]],
+        "pathGroups": [
+          {
+            "pattern": "react+(|-native)",
+            "group": "external",
+            "position": "before"
+          },
+          {
+            "pattern": "@cocorico/views/**",
+            "group": "internal",
+            "position": "before"
+          },
+          {
+            "pattern": "@cocorico/components/**",
+            "group": "internal",
+            "position": "before"
+          },
+          {
+            "pattern": "@cocorico/services/**",
+            "group": "internal",
+            "position": "before"
+          },
+          {
+            "pattern": "@cocorico/constants/**",
+            "group": "internal",
+            "position": "before"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["builtin"],
+        "newlines-between": "always",
+        "alphabetize": { "order": "asc", "caseInsensitive": true }
+      }
+    ],
+
+    "prettier/prettier": "error"
+  }
+}
