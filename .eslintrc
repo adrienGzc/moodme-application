@@ -60,22 +60,22 @@
             "position": "before"
           },
           {
-            "pattern": "@cocorico/views/**",
+            "pattern": "@moodme/views/**",
             "group": "internal",
             "position": "before"
           },
           {
-            "pattern": "@cocorico/components/**",
+            "pattern": "@moodme/components/**",
             "group": "internal",
             "position": "before"
           },
           {
-            "pattern": "@cocorico/services/**",
+            "pattern": "@moodme/services/**",
             "group": "internal",
             "position": "before"
           },
           {
-            "pattern": "@cocorico/constants/**",
+            "pattern": "@moodme/constants/**",
             "group": "internal",
             "position": "before"
           }

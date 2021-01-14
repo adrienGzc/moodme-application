@@ -1,47 +1,18 @@
-/* eslint-disable react/style-prop-object */
-/* eslint-disable react-native/no-color-literals */
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   TouchableOpacity,
-  ViewProps,
-  TextProps,
-  TouchableOpacityProps,
+  Linking,
+  StatusBar,
+  Button,
 } from 'react-native';
 
 import { Camera } from 'expo-camera';
 import * as FaceDetector from 'expo-face-detector';
-import { StatusBar } from 'expo-status-bar';
 
-interface StyleProps {
-  container: ViewProps;
-  flipContainer: ViewProps;
-  flipButton: TouchableOpacityProps;
-  flipButtonLabel: TextProps;
-}
-
-const styles = StyleSheet.create<StyleProps>({
-  container: {
-    flex: 1,
-  },
-  flipContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-  },
-  flipButton: {
-    flex: 0.1,
-    alignSelf: 'flex-end',
-    alignItems: 'center',
-  },
-  flipButtonLabel: {
-    fontSize: 18,
-    marginBottom: 10,
-    color: 'white',
-  },
-});
+import appStyles from '@moodme/assets/views/appStyles';
+import noCameraStyles from '@moodme/assets/views/noCameraAccessStyles';
 
 export default () => {
   const [hasPermission, setHasPermission] = useState<boolean>(false);
@@ -54,19 +25,25 @@ export default () => {
     })();
   }, []);
 
-  if (hasPermission === null) {
-    return <View />;
-  }
-  if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
-  }
+  const handleCameraAccess = async () => {
+    const { status } = await Camera.requestPermissionsAsync();
 
-  const handleFacesDetected = (value: any) => {
-    console.log('DETECTED: ', value);
+    if (status === 'granted') setHasPermission(status === 'granted');
+    else Linking.openURL('app-settings://');
   };
 
-  return (
-    <View style={styles.container}>
+  const handleFacesDetected = (faces: any) => {
+    console.log('DETECTED: ', faces);
+  };
+
+  return !hasPermission ? (
+    <View style={noCameraStyles.container}>
+      <StatusBar barStyle="dark-content" />
+      <Text style={noCameraStyles.text}>No camera access</Text>
+      <Button title="Enable camera" onPress={handleCameraAccess} />
+    </View>
+  ) : (
+    <View style={appStyles.container}>
       <Camera
         faceDetectorSettings={{
           mode: FaceDetector.Constants.Mode.accurate,
@@ -75,13 +52,13 @@ export default () => {
           minDetectionInterval: 5000,
           tracking: true,
         }}
-        style={styles.container}
+        style={appStyles.container}
         type={type}
         onFacesDetected={handleFacesDetected}
       >
-        <View style={styles.flipContainer}>
+        <View style={appStyles.flipContainer}>
           <TouchableOpacity
-            style={styles.flipButton}
+            style={appStyles.flipButton}
             onPress={() => {
               setType(
                 type === Camera.Constants.Type.back
@@ -90,11 +67,11 @@ export default () => {
               );
             }}
           >
-            <Text style={styles.flipButtonLabel}>Flip</Text>
+            <Text style={appStyles.flipButtonLabel}>Flip</Text>
           </TouchableOpacity>
         </View>
       </Camera>
-      <StatusBar style="auto" />
+      {/* <StatusBar style="auto" /> */}
     </View>
   );
 };
