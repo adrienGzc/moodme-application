@@ -71,7 +71,6 @@ export default () => {
           </TouchableOpacity>
         </View>
       </Camera>
-      {/* <StatusBar style="auto" /> */}
     </View>
   );
 };
