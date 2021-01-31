@@ -1,24 +1,22 @@
-import React from 'react';
-import { View } from 'react-native';
-
+import React, { FunctionComponent } from 'react';
 import { connect } from 'react-redux';
 
 import type { Dispatch } from '@moodme/store';
 
-interface Props extends DispatchProps {}
+interface SplashProps extends DispatchProps {}
 
-const SplashScreen = ({ setAppStatus }: Props) => {
+const SplashScreen: FunctionComponent<SplashProps> = ({ setAppStatus }) => {
   const startupAsync = async () => {
     setAppStatus('LOADED');
   };
 
   startupAsync();
 
-  return <View />;
+  return <></>;
 };
 
-const mapDispatch = (dispatch: Dispatch) => ({
-  setAppStatus: dispatch.session.setAppStatus,
+const mapDispatch = ({ session: { setAppStatus } }: Dispatch) => ({
+  setAppStatus,
 });
 type DispatchProps = ReturnType<typeof mapDispatch>;
 

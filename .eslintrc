@@ -55,7 +55,7 @@
         "groups": ["builtin", "external", "internal", ["parent", "sibling"]],
         "pathGroups": [
           {
-            "pattern": "react+(|-native)",
+            "pattern": "react+(|-native)*",
             "group": "external",
             "position": "before"
           },
