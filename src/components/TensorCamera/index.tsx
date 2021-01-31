@@ -1,27 +1,62 @@
-import React, { useState, FunctionComponent } from 'react';
+import React, { useState, ForwardedRef, forwardRef } from 'react';
 import { Text, View, TouchableOpacity, StatusBar } from 'react-native';
 
-import { cameraWithTensors } from '@tensorflow/tfjs-react-native';
+// import * as tf from '@tensorflow/tfjs';
+// import { cameraWithTensors } from '@tensorflow/tfjs-react-native';
 import { Camera } from 'expo-camera';
 import * as FaceDetector from 'expo-face-detector';
 
-import appStyles from '@moodme/assets/views/appStyles';
+import styles from '@moodme/assets/views/appStyles';
 
-const TensorCamera = cameraWithTensors(Camera);
+// const TensorCamera = cameraWithTensors(Camera);
 
 interface CameraScreenProps {
   faceDetectionHandler: (faces: any) => void;
+  cameraReady: () => void;
 }
 
-const CameraScreen: FunctionComponent<CameraScreenProps> = ({
-  faceDetectionHandler,
-}) => {
-  const [type, setType] = useState(Camera.Constants.Type.front);
+const CameraScreen = forwardRef(
+  (
+    { faceDetectionHandler, cameraReady }: CameraScreenProps,
+    ref: ForwardedRef<Camera>,
+  ) => {
+    const [type, setType] = useState(Camera.Constants.Type.front);
 
-  return (
-    <View style={appStyles.container}>
-      <StatusBar barStyle="light-content" />
-      <Camera
+    return (
+      <>
+        <StatusBar barStyle="light-content" />
+        <Camera
+          faceDetectorSettings={{
+            mode: FaceDetector.Constants.Mode.accurate,
+            detectLandmarks: FaceDetector.Constants.Landmarks.none,
+            runClassifications: FaceDetector.Constants.Classifications.none,
+            minDetectionInterval: 500,
+          }}
+          ref={ref}
+          style={styles.container}
+          type={type}
+          onCameraReady={cameraReady}
+          onFacesDetected={faceDetectionHandler}
+        >
+          <View style={styles.flipContainer}>
+            <TouchableOpacity
+              style={styles.flipButton}
+              onPress={() => {
+                setType(
+                  type === Camera.Constants.Type.back
+                    ? Camera.Constants.Type.front
+                    : Camera.Constants.Type.back,
+                );
+              }}
+            >
+              <Text style={styles.flipButtonLabel}>Flip</Text>
+            </TouchableOpacity>
+          </View>
+        </Camera>
+        {/* <TensorCamera
+        autorender
+        cameraTextureHeight={textureDims.height}
+        cameraTextureWidth={textureDims.width}
         faceDetectorSettings={{
           mode: FaceDetector.Constants.Mode.accurate,
           detectLandmarks: FaceDetector.Constants.Landmarks.none,
@@ -29,13 +64,17 @@ const CameraScreen: FunctionComponent<CameraScreenProps> = ({
           minDetectionInterval: 5000,
           tracking: true,
         }}
-        style={appStyles.container}
+        resizeDepth={3}
+        resizeHeight={1080}
+        resizeWidth={1920}
+        style={styles.container}
         type={type}
         onFacesDetected={faceDetectionHandler}
+        onReady={handleCameraStream}
       >
-        <View style={appStyles.flipContainer}>
+        <View style={styles.flipContainer}>
           <TouchableOpacity
-            style={appStyles.flipButton}
+            style={styles.flipButton}
             onPress={() => {
               setType(
                 type === Camera.Constants.Type.back
@@ -44,12 +83,13 @@ const CameraScreen: FunctionComponent<CameraScreenProps> = ({
               );
             }}
           >
-            <Text style={appStyles.flipButtonLabel}>Flip</Text>
+            <Text style={styles.flipButtonLabel}>Flip</Text>
           </TouchableOpacity>
         </View>
-      </Camera>
-    </View>
-  );
-};
+      </TensorCamera> */}
+      </>
+    );
+  },
+);
 
 export default CameraScreen;

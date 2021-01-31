@@ -34,6 +34,7 @@
     "expo-camera": "~9.1.0",
     "expo-constants": "~9.3.3",
     "expo-face-detector": "~8.4.0",
+    "expo-file-system": "~9.3.0",
     "expo-gl": "~9.2.0",
     "expo-gl-cpp": "~9.2.0",
     "expo-haptics": "~8.4.0",
