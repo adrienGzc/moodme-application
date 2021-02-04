@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Linking, View, Image } from 'react-native';
+import Svg, { Circle, Rect } from 'react-native-svg';
 
 import * as tf from '@tensorflow/tfjs';
-import { bundleResourceIO } from '@tensorflow/tfjs-react-native';
+import {
+  bundleResourceIO,
+  decodeJpeg,
+  fetch,
+} from '@tensorflow/tfjs-react-native';
 import { Camera, CameraCapturedPicture } from 'expo-camera';
-import * as FileSystem from 'expo-file-system';
 
 import { TensorCamera } from '@moodme/components';
 import { NoCameraAccess } from '@moodme/views';
@@ -16,12 +20,13 @@ const weights = require('assets/weights.bin');
 const MainScreenContainer = () => {
   const [hasPermission, setHasPermission] = useState<boolean>(false);
   const [isTfReady, setIsTfReady] = useState<boolean>(false);
-  const [model, setModel] = useState<any>(undefined);
+  const [model, setModel] = useState<tf.LayersModel>();
   const [isCameraReady, setIsCameraReady] = useState<boolean>(false);
   const cameraRef = useRef<Camera>(null);
   const [snapshot, setSnapshot] = useState<CameraCapturedPicture | undefined>(
     undefined,
   );
+  const [facesFound, setFacesFound] = useState<any>(undefined);
 
   useEffect(() => {
     (async () => {
@@ -51,18 +56,28 @@ const MainScreenContainer = () => {
   };
 
   const handleFacesDetected = async (faces: any) => {
-    if (!isCameraReady) return;
-
-    const snap = await cameraRef.current?.takePictureAsync();
-    if (snap) {
-      console.log('SNAP: ', snap);
-      setSnapshot(snap);
-      // await FileSystem.copyAsync({
-      //   from: snap.uri,
-      //   to: 'file:///Users/aguezennec/Documents/Epitech/moodme-application/',
-      // });
+    if (!isCameraReady || !faces.faces.length) {
+      setFacesFound(null);
+      setSnapshot(undefined);
+      return;
     }
-    console.log('DETECTED: ', faces);
+
+    setFacesFound(faces.faces);
+    try {
+      const snap = await cameraRef.current?.takePictureAsync({
+        quality: 1,
+        base64: true,
+      });
+      if (snap) {
+        // console.log('SNAP: ', snap);
+        // const encodedPic = tf.util.encodeString(snap.base64);
+        // const response = await fetch(snap.uri, {}, { isBinary: true });
+        // const rawImageData = await response.arrayBuffer();
+        // const imageTensor = decodeJpeg(rawImageData, 1);
+        // console.log(imageTensor.shape);
+        setSnapshot(snap);
+      }
+    } catch (_error) {}
   };
 
   return hasPermission ? (
@@ -71,15 +86,60 @@ const MainScreenContainer = () => {
         cameraReady={() => setIsCameraReady(true)}
         faceDetectionHandler={handleFacesDetected}
         ref={cameraRef}
-      />
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Image
+      >
+        {/* <View
+          // eslint-disable-next-line react-native/no-inline-styles
+          style={{
+            position: 'absolute',
+            zIndex: 10000,
+          }}
+        > */}
+        {facesFound &&
+          facesFound.map((face: any) => {
+            const {
+              bounds: { origin, size },
+              faceID,
+            } = face;
+            // console.log('FACE: ', face);
+            return (
+              <Svg
+                key={faceID}
+                // eslint-disable-next-line react-native/no-inline-styles
+                style={{
+                  position: 'absolute',
+                  zIndex: 10000,
+                }}
+                // viewBox={`${origin.x} ${origin.y} 100 100`}
+                // viewBox="0 0 500 500"
+              >
+                <Rect
+                  fill="transparent"
+                  height={size.height - 5}
+                  stroke="blue"
+                  strokeWidth="2"
+                  width={size.width - 20}
+                  x={origin.x + 10}
+                  y={origin.y + 5}
+                />
+                {/* <Circle
+                  cx={origin.y}
+                  cy={origin.x}
+                  fill="transparent"
+                  r="5"
+                  stroke="red"
+                  strokeWidth="2.5"
+                /> */}
+              </Svg>
+            );
+          })}
+        {/* <Image
           source={{
             uri: snapshot?.uri,
           }}
           style={{ width: 300, height: 280 }}
-        />
-      </View>
+        /> */}
+        {/* </View> */}
+      </TensorCamera>
     </>
   ) : (
     <NoCameraAccess
