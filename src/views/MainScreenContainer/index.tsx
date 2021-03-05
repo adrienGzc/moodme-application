@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Linking, View, Image } from 'react-native';
-import Svg, { Circle, Rect } from 'react-native-svg';
+import { Linking } from 'react-native';
+import Svg, { Rect } from 'react-native-svg';
 
 import * as tf from '@tensorflow/tfjs';
-import {
-  bundleResourceIO,
-  decodeJpeg,
-  fetch,
-} from '@tensorflow/tfjs-react-native';
+import { bundleResourceIO, decodeJpeg } from '@tensorflow/tfjs-react-native';
 import { Camera, CameraCapturedPicture } from 'expo-camera';
+import * as FileSystem from 'expo-file-system';
 
 import { TensorCamera } from '@moodme/components';
 import { NoCameraAccess } from '@moodme/views';
@@ -55,8 +52,24 @@ const MainScreenContainer = () => {
     else Linking.openURL('app-settings://');
   };
 
+  const formatShapeFaceImage = () => {};
+
+  const handlingCapture = async (imageCaptured: {
+    height: number;
+    width: number;
+    uri: string;
+  }) => {
+    const imgB64 = await FileSystem.readAsStringAsync(imageCaptured.uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+    const imgBuffer = tf.util.encodeString(imgB64, 'base64').buffer;
+    const raw = new Uint8Array(imgBuffer);
+    const imageTensor = decodeJpeg(raw);
+    console.log('COUCOU: ', imageTensor);
+  };
+
   const handleFacesDetected = async (faces: any) => {
-    if (!isCameraReady || !faces.faces.length) {
+    if ((isTfReady && !isCameraReady) || !faces.faces.length) {
       setFacesFound(null);
       setSnapshot(undefined);
       return;
@@ -64,19 +77,12 @@ const MainScreenContainer = () => {
 
     setFacesFound(faces.faces);
     try {
-      const snap = await cameraRef.current?.takePictureAsync({
-        quality: 1,
-        base64: true,
-      });
+      const snap = await cameraRef.current?.takePictureAsync();
       if (snap) {
-        // console.log('SNAP: ', snap);
-        // const encodedPic = tf.util.encodeString(snap.base64);
-        // const response = await fetch(snap.uri, {}, { isBinary: true });
-        // const rawImageData = await response.arrayBuffer();
-        // const imageTensor = decodeJpeg(rawImageData, 1);
-        // console.log(imageTensor.shape);
-        setSnapshot(snap);
+        console.log('SNAP: ', snap);
+        // handlingCapture(snap);
       }
+      // eslint-disable-next-line no-empty
     } catch (_error) {}
   };
 
@@ -87,58 +93,32 @@ const MainScreenContainer = () => {
         faceDetectionHandler={handleFacesDetected}
         ref={cameraRef}
       >
-        {/* <View
-          // eslint-disable-next-line react-native/no-inline-styles
-          style={{
-            position: 'absolute',
-            zIndex: 10000,
-          }}
-        > */}
         {facesFound &&
           facesFound.map((face: any) => {
             const {
               bounds: { origin, size },
               faceID,
             } = face;
-            // console.log('FACE: ', face);
             return (
               <Svg
                 key={faceID}
                 // eslint-disable-next-line react-native/no-inline-styles
                 style={{
                   position: 'absolute',
-                  zIndex: 10000,
                 }}
-                // viewBox={`${origin.x} ${origin.y} 100 100`}
-                // viewBox="0 0 500 500"
               >
                 <Rect
                   fill="transparent"
                   height={size.height - 5}
                   stroke="blue"
                   strokeWidth="2"
-                  width={size.width - 20}
-                  x={origin.x + 10}
+                  width={size.width - 70}
+                  x={origin.x + 40}
                   y={origin.y + 5}
                 />
-                {/* <Circle
-                  cx={origin.y}
-                  cy={origin.x}
-                  fill="transparent"
-                  r="5"
-                  stroke="red"
-                  strokeWidth="2.5"
-                /> */}
               </Svg>
             );
           })}
-        {/* <Image
-          source={{
-            uri: snapshot?.uri,
-          }}
-          style={{ width: 300, height: 280 }}
-        /> */}
-        {/* </View> */}
       </TensorCamera>
     </>
   ) : (
