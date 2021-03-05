@@ -55,12 +55,12 @@
         "groups": ["builtin", "external", "internal", ["parent", "sibling"]],
         "pathGroups": [
           {
-            "pattern": "react+(|-native)",
+            "pattern": "react+(|-native)*",
             "group": "external",
             "position": "before"
           },
           {
-            "pattern": "@moodme/views/**",
+            "pattern": "@moodme/assets/**",
             "group": "internal",
             "position": "before"
           },
@@ -70,12 +70,17 @@
             "position": "before"
           },
           {
+            "pattern": "@moodme/constants/**",
+            "group": "internal",
+            "position": "before"
+          },
+          {
             "pattern": "@moodme/services/**",
             "group": "internal",
             "position": "before"
           },
           {
-            "pattern": "@moodme/constants/**",
+            "pattern": "@moodme/views/**",
             "group": "internal",
             "position": "before"
           }

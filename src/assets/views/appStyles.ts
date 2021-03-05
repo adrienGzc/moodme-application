@@ -16,7 +16,9 @@ interface StyleProps {
 
 export default StyleSheet.create<StyleProps>({
   container: {
+    zIndex: -1,
     flex: 1,
+    // height: '60%',
   },
   flipContainer: {
     flex: 1,
